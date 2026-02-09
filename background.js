@@ -22,7 +22,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
             iconUrl: chrome.runtime.getURL("icons/icon128.png"),
             title: info.title,
             message: info.message,
-            riority: 2
+            priority: 2
         });
     });
 });

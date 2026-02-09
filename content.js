@@ -162,15 +162,22 @@
 		}
 
 		const lockUntil = createdDate.getTime() + durationMs;
-
-		chrome.runtime.sendMessage({
-			type: "SCHEDULE_NOTIFICATION",
-			alarmName: `pr_ready_${prId}`,
-			triggerAt: lockUntil,
-			title: "PR Onaylanabilir",
-			message: "Bekleme süresi doldu. Pull Request artık onaylanabilir.",
-			url: location.href
-		});
+		const now = Date.now();
+		
+		if (lockUntil <= now) {
+			console.log("Cooldown elapsed");
+		}
+		else {			
+		
+			chrome.runtime.sendMessage({
+				type: "SCHEDULE_NOTIFICATION",
+				alarmName: `pr_ready_${prId}`,
+				triggerAt: lockUntil,
+				title: "PR Onaylanabilir",
+				message: "Bekleme süresi doldu. Pull Request artık onaylanabilir.",
+				url: location.href
+			});	
+		}
 
 		const counter = createCounterElement();
 
@@ -178,6 +185,7 @@
 		
 		const approveDropdownButton = getApproveDropdownButton(approveButton);
 
+		let timer;
 		const tick = () => {
 			const remaining = lockUntil - Date.now();
 
@@ -199,7 +207,7 @@
 		};
 
 		tick();
-		const timer = setInterval(tick, 1000);
+		timer = setInterval(tick, 1000);
 	});
 
 })();
