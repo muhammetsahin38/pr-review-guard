@@ -1,3 +1,5 @@
+Internal Tool • Privacy Friendly • No Data Collection
+
 # PR Review Guard
 
 🇹🇷 Türkçe aşağıdadır.
