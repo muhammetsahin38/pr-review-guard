@@ -32,6 +32,8 @@ All functionality is executed locally within the user's browser.
 
 The extension only reads the information necessary to detect pull request pages on approved internal Azure DevOps domains in order to enforce the review cooldown feature.
 
+The extension operates only on approved internal Azure DevOps domains.
+
 **No data is transmitted externally.**
 
 ---
