@@ -48,7 +48,10 @@
 		);
 	}
 	
-	function getPullRequestCreatedDate() {
+	async function getPullRequestCreatedDate() {
+		
+		await waitForElement('time.activity-card-time[datetime]');
+		
 		const times = [
 			...document.querySelectorAll('time.activity-card-time[datetime]')
 		];
@@ -62,6 +65,34 @@
 		if (!dates.length) return null;
 
 		return new Date(Math.min(...dates.map(d => d.getTime())));
+	}
+	
+	async function waitForElement(selector, timeout = 15000) {
+		return new Promise((resolve, reject) => {
+
+			const existing = document.querySelector(selector);
+			if (existing) return resolve(existing);
+
+			const observer = new MutationObserver(() => {
+
+				const el = document.querySelector(selector);
+
+				if (el) {
+					observer.disconnect();
+					resolve(el);
+				}
+			});
+
+			observer.observe(document.body, {
+				childList: true,
+				subtree: true
+			});
+
+			setTimeout(() => {
+				observer.disconnect();
+				reject("Element bulunamadı: " + selector);
+			}, timeout);
+		});
 	}
 
     function waitForApproveButton() {
@@ -111,14 +142,20 @@
     const approveButton = await waitForApproveButton();
     const prId = getPrId();
 
-	chrome.storage.sync.get(["cooldownMinutes"], (cfg) => {
+	chrome.storage.sync.get(["cooldownMinutes"], async (cfg) => {
 
 		const minutes = cfg.cooldownMinutes || 4;
 		const durationMs = minutes * 60 * 1000;
 
-		const createdDate = getPullRequestCreatedDate();
+		let createdDate = null;
+		  try {
+			createdDate = await getPullRequestCreatedDate();
+		  } catch (e) {
+			console.warn("PR creation date beklenirken hata:", e);
+		  }
 
-		// PR creation date bulunamazsa güvenli tarafta kal → kilitle
+		  console.log("Created Date: ", createdDate);
+				
 		if (!createdDate) {
 			console.warn("PR creation date bulunamadı, buton kilitli kalacak");
 			return;
@@ -164,6 +201,5 @@
 		tick();
 		const timer = setInterval(tick, 1000);
 	});
-
 
 })();

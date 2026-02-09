@@ -1,7 +1,4 @@
 chrome.runtime.onMessage.addListener((msg) => {
-	
-	console.log("MESSAGE GELDİ:", msg);
-	
     if (msg.type === "SCHEDULE_NOTIFICATION") {
         const { alarmName, triggerAt, title, message, url } = msg;
 
@@ -22,17 +19,15 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 
         chrome.notifications.create(alarm.name, {
             type: "basic",
-            iconUrl: "icon128.png", // icon ekleyeceğiz
+            iconUrl: chrome.runtime.getURL("icons/icon128.png"),
             title: info.title,
-            message: info.message
+            message: info.message,
+            riority: 2
         });
     });
 });
 
-chrome.notifications.onClicked.addListener((notificationId) => {
-	
-	console.log("Notification clicked:", notificationId);
-		
+chrome.notifications.onClicked.addListener((notificationId) => {	
     chrome.storage.local.get(notificationId, (data) => {
         const info = data[notificationId];		
         if (!info || !info.url) return;
@@ -41,8 +36,8 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 
         chrome.tabs.query({}, (tabs) => {
             const existingTab = tabs.find(t =>
-				t.url?.includes("/pullrequest/")
-			);
+  		  t.url === targetUrl
+	    );
 
             if (existingTab) {
                 chrome.windows.update(existingTab.windowId, {
